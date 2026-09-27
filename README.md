@@ -3,14 +3,14 @@
 A reproducible ETL pipeline that loads Cambodia's official USD/KHR exchange-rate
 history into PostgreSQL, validates it, and makes it queryable for trend analysis.
 
-## Business purpose
+## 🎯 Business purpose
 
 Analysts need reliable access to daily official currency exchange-rate data in a
 clean database table — not a raw CSV — to answer questions like: what was the
 USD/KHR monthly average, and how has it changed over time? This project builds
 that pipeline end to end.
 
-## Architecture
+## 🏗️ Architecture
 
 ```
 data/raw CSV → extract.py → transform.py → clean records → load.py → PostgreSQL
@@ -24,11 +24,11 @@ data/raw CSV → extract.py → transform.py → clean records → load.py → P
 - **Docker Compose**: runs Postgres and the ETL consistently
 - **SQL checks**: test freshness, nulls, duplicates, and valid ranges
 
-## Tech stack
+## 🧰 Tech stack
 
 Python · Pandas · PostgreSQL · Docker Compose
 
-## Data source
+## 📊 Data source
 
 Historical Khmer Riel–USD exchange rate data (2003–2023), sourced from
 Cambodia's Data EF portal (data.mef.gov.kh), originally published by the
@@ -47,13 +47,13 @@ National Bank of Cambodia.
 
 Primary key: `rate_date` + `currency_code` (prevents duplicate daily loads).
 
-## Prerequisites
+## ✅ Prerequisites
 
 - Python 3.11+
 - Docker Desktop
 - Git
 
-## Setup
+## ⚙️ Setup
 
 ```bash
 git clone <your-repo-url>
@@ -64,7 +64,7 @@ pip install -r requirements.txt
 cp .env.example .env           # fill in your own local values
 ```
 
-## How to run
+## ▶️ How to run
 
 ```bash
 docker compose up --build
@@ -74,20 +74,20 @@ This starts PostgreSQL and runs the ETL pipeline (extract → transform →
 validate → load) against it. Rerunning is safe — the pipeline uses UPSERT, so
 it will not create duplicate rows.
 
-## Data model and quality checks
+## 🗄️ Data model and quality checks
 
 The `exchange_rates` table enforces `NOT NULL` on required fields and unique
 `(rate_date, currency_code)` pairs. `sql/02_quality_checks.sql` verifies
 uniqueness, completeness, validity, freshness, volume, and basic business
 logic after every load.
 
-## Example analysis
+## 📈 Example analysis
 
 See `sql/03_analysis_queries.sql` for: latest available rate, monthly
 average by currency, highest/lowest rate in a date range, and day-over-day
 change.
 
-## Limitations & Version 2 roadmap
+## 🚀 Limitations & Version 2 roadmap
 
 This version loads a static historical CSV (through Dec 2023), not live data.
 Version 2 plans:
@@ -96,6 +96,6 @@ Version 2 plans:
 - Add a cloud destination
 - Optional dashboard
 
-## Status
+## 📍 Status
 
 🚧 In progress — see the project roadmap for current build stage.
