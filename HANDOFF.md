@@ -296,3 +296,23 @@ Move load() and make\_engine() from main.py into src/load.py.
 
 \- Prefers incremental building with verification at each step
 
+## Day 5
+\- Created src/validate.py with 4 checks + validate(df) entry point
+\- Order: required columns -> dates -> positive rates -> duplicates
+\- test/test_validate.py: 10 tests, all passing (14 total in repo)
+\- main.py: validate(df_clean) runs after transform(), before load()
+\- Deleted src/Extract_Scripts/ (leftover)
+\- Full run: 7531 rows read, 7531 clean, 0 inserted (idempotent, already loaded)
+
+## Day 6 (complete)
+- src/load.py: make_engine() + load() (UPSERT via staging, returns inserted/updated)
+- main.py: tiny orchestrator with run summary (extracted/valid/rejected/inserted/updated)
+- test/test_load.py added
+- 16 tests passing
+
+## Day 7 task (next)
+TBD by user. Options:
+- Integration test for load() against a throwaway schema
+- GitHub Actions CI (run pytest on push)
+- Add CLI flags (--csv path, --dry-run)
+- Handle rejected rows in a dead-letter output (data/processed/rejected.csv)

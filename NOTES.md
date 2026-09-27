@@ -109,4 +109,17 @@ def function_name(args): — define a function
 - Deleted src/Extract_Scripts/ (leftover)
 - Full run: 7531 rows read, 7531 clean, 0 inserted (idempotent, already loaded)
 
+## Day 6
+- Moved load-side code out of main.py into src/load.py
+- src/load.py now: make_engine() reads env vars inside; load() does real UPSERT
+  (ON CONFLICT ... DO UPDATE) via staging table
+- load() returns (inserted, updated) by pre-counting the overlap in staging
+- main.py is now a ~40-line orchestrator: extract -> transform -> validate -> load
+  and prints a run summary line
+- Deleted inline copies of extract/transform/make_engine/ensure_schema/load from main.py
+- ensure_schema() removed from main.py; schema remains owned by sql/01_create_schema.sql
+- test/test_load.py added (2 unit tests)
+- Full suite: 16 passed
+- Proof: MAX(loaded_at) after rerun matches the run time -> UPSERT refreshed all 7531
+
 =====================================
