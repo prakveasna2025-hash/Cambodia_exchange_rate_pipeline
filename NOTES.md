@@ -74,3 +74,39 @@ Move transform() from main.py → src/transform.py, add tests
 
 \- Code Runner temp file strips imports — use `python main.py` instead
 
+
+======== Pandas Syntax ==============
+
+pd.read_csv("path") — read a file
+
+df.head() — look at the top
+
+df.info() — see column types and nulls
+
+df.columns — list column names
+
+df["col"] — pick a column
+
+pd.to_datetime(...) — parse dates
+
+pd.to_numeric(...) — parse numbers
+
+df.dropna(...) — remove null rows
+
+df.drop_duplicates(...) — remove dupes
+
+df.to_csv("path") — save to file
+
+logging.info(...) — log a message
+
+def function_name(args): — define a function
+
+## Day 5
+- Created src/validate.py with 4 checks + validate(df) entry point
+- Order: required columns -> dates -> positive rates -> duplicates
+- test/test_validate.py: 10 tests, all passing (14 total in repo)
+- main.py: validate(df_clean) runs after transform(), before load()
+- Deleted src/Extract_Scripts/ (leftover)
+- Full run: 7531 rows read, 7531 clean, 0 inserted (idempotent, already loaded)
+
+=====================================

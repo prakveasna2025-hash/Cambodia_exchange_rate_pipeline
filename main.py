@@ -6,15 +6,15 @@ from pathlib import Path
 import pandas as pd
 from sqlalchemy import create_engine, text
 from dotenv import load_dotenv
-
 from src.extract import extract_csv
+from src.validate import validate
 
 # ---------- Config ----------
 load_dotenv()
 
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+    format="%(asctime)s [%(levelname)s] %(message)s",
     datefmt="%Y-%m-%d %H:%M:%S",
 )
 log = logging.getLogger(__name__)
@@ -39,7 +39,17 @@ TABLE = "exchange_rates"
 STAGE = "exchange_rates_stage"
 
 
-# ---------- Transform (moves to src/transform.py on Day 4) ----------
+# ---------- Extract ----------
+def extract(path: Path) -> pd.DataFrame:
+    if not path.exists():
+        raise FileNotFoundError(f"CSV not found: {path.resolve()}")
+    df = pd.read_csv(path)
+    log.info("Read %d rows from %s", len(df), path)
+    log.debug("Columns: %s", df.columns.tolist())
+    return df
+
+
+# ---------- Transform ----------
 def transform(df: pd.DataFrame) -> pd.DataFrame:
     required = {"date", "purchase", "sale"}
     missing = required - set(df.columns)
@@ -60,12 +70,13 @@ def transform(df: pd.DataFrame) -> pd.DataFrame:
     if len(out) != before:
         log.warning("Dropped %d rows with invalid dates", before - len(out))
 
-    out = out.drop_duplicates(subset=["rate_date", "currency_code"], keep="last")
+    out = out.drop_duplicates(
+        subset=["rate_date", "currency_code"], keep="last")
     log.info("Transformed to %d clean rows", len(out))
     return out
 
 
-# ---------- Load (moves to src/load.py on Day 5) ----------
+# ---------- Load ----------
 def make_engine():
     c = DB_CONFIG
     url = (
@@ -73,6 +84,24 @@ def make_engine():
         f"@{c['host']}:{c['port']}/{c['db']}"
     )
     return create_engine(url, pool_pre_ping=True)
+
+
+def ensure_schema(engine) -> None:
+    """Create the table + unique constraint if they don't exist yet."""
+    ddl_table = f"""
+        CREATE TABLE IF NOT EXISTS {TABLE} (
+            rate_date      DATE        NOT NULL,
+            currency_code  VARCHAR(3)  NOT NULL,
+            currency_name  VARCHAR(64) NOT NULL,
+            buying_rate    NUMERIC(18, 6),
+            selling_rate   NUMERIC(18, 6),
+            source         VARCHAR(32) NOT NULL,
+            loaded_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+            PRIMARY KEY (rate_date, currency_code)
+        );
+    """
+    with engine.begin() as conn:
+        conn.execute(text(ddl_table))
 
 
 def load(df: pd.DataFrame, engine) -> int:
@@ -104,6 +133,7 @@ def load(df: pd.DataFrame, engine) -> int:
 def main() -> None:
     df = extract_csv(CSV_PATH)
     df_clean = transform(df)
+    validate(df_clean)
 
     engine = make_engine()
     load(df_clean, engine)
