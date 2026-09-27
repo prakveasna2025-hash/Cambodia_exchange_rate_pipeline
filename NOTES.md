@@ -121,5 +121,20 @@ def function_name(args): — define a function
 - test/test_load.py added (2 unit tests)
 - Full suite: 16 passed
 - Proof: MAX(loaded_at) after rerun matches the run time -> UPSERT refreshed all 7531
+## Day 7 — Repeat-run test (idempotency)
 
+- Ran main.py twice back to back.
+- Before:  7531 rows, loaded_at = 2026-09-27 13:18:37 UTC
+- Run #1:  0 inserted, 7531 updated (of 7531 attempted)
+- Run #2:  0 inserted, 7531 updated (of 7531 attempted)
+- After:   7531 rows, loaded_at bumped each run (14:xx / 15:xx UTC)
+- Duplicate check:
+    SELECT rate_date, currency_code, COUNT(*)
+    FROM exchange_rates
+    GROUP BY rate_date, currency_code
+    HAVING COUNT(*) > 1;
+    -> (0 rows)
+
+Conclusion: pipeline is idempotent. The staging-table UPSERT works —
+running the same CSV any number of times does not create duplicates.
 =====================================

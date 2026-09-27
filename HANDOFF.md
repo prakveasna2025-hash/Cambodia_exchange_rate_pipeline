@@ -248,6 +248,18 @@ pytest test/ -v                          # run all tests
 
 \- Notepad's Ctrl+A + paste is not always reliable for full overwrite.
 
+- Notepad's Ctrl+A + paste is not always reliable for full overwrite.
+  Always verify with Get-Content <file> | Select-Object -First 5 after saving.
+
+- If origin/main has commits you don't have (e.g. README edited on GitHub web UI):
+    1. git fetch origin
+    2. git --no-pager log --oneline --graph --all -10   (see what's there)
+    3. git pull --rebase origin main
+    4. If a tag pointed at the old commit: git tag -f <tag> <new-sha>
+    5. git push origin main
+    6. git push origin <tag> --force
+- git log opens a pager; press `q` to exit (or use `git --no-pager log ...`)
+
 &#x20; Always verify with Get-Content <file> | Select-Object -First 5 after saving.
 
 
@@ -316,3 +328,21 @@ TBD by user. Options:
 - GitHub Actions CI (run pytest on push)
 - Add CLI flags (--csv path, --dry-run)
 - Handle rejected rows in a dead-letter output (data/processed/rejected.csv)
+
+## Current status: Day 7 complete, Day 8 not started
+
+## Day 7 (complete) — Repeat-run test
+- Ran main.py twice back to back
+- Before:  7531 rows, loaded_at = 2026-09-27 13:18:37 UTC
+- Run #1:  0 inserted, 7531 updated
+- Run #2:  0 inserted, 7531 updated
+- After:   7531 rows, loaded_at bumped each run
+- Duplicate check: SELECT ... GROUP BY rate_date, currency_code HAVING COUNT(*) > 1 -> (0 rows)
+- Conclusion: pipeline is idempotent
+
+## Day 8 task (next)
+TBD. Options:
+- Integration test for load() against a throwaway table
+- GitHub Actions CI (pytest on push)
+- Rejected-rows output (data/processed/rejected.csv)
+- CLI flags (--csv, --dry-run)
