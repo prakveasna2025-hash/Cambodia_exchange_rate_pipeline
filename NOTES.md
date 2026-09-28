@@ -162,4 +162,24 @@ Run commands:
   docker compose down -v
 
 
+## Day 9 — Data-quality checks
+
+- Created sql/02_quality_checks.sql with 6 checks (uniqueness, completeness,
+  validity, freshness, volume, business_logic)
+- Pattern: every check returns exactly one row
+  (check_name | status | failed_rows | details)
+- All 6 joined with UNION ALL, ordered by check_name
+- Adjusted docker-compose.yml so sql/02 isn't auto-run at Postgres init;
+  mounted at /sql instead so it can be run manually with psql -f
+
+Interesting finding:
+- business_logic originally flagged 16 rows where buying_rate > selling_rate
+- Investigated: all present in RAW CSV, tiny reversals (1-91 KHR), spread
+  across 2004-2014 — normal pegged-currency noise, not a bug
+- Loosened rule to buying_rate > selling_rate + 100 (documented in comment)
+
+Result: 6/6 checks PASS. Screenshot saved.
+
+Run:
+  docker compose exec db psql -U exchange_user -d exchange_db -f /sql/02_quality_checks.sql
 =====================================

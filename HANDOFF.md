@@ -378,19 +378,65 @@ How to run:
 - docker compose exec db psql -U exchange_user -d exchange_db
 - docker compose down -v             # full reset (loses data)
 
-## Day 9 task (next)
+## Day 9 (complete) — Data-quality checks
+
+New file: sql/02_quality_checks.sql
+- Six checks, each returning one row (check_name | status | failed_rows | details)
+- uniqueness    : no duplicate (rate_date, currency_code) pairs
+- completeness  : no NULLs in required columns
+- validity      : positive rates, plausible dates, known currency codes
+- freshness     : last loaded_at within 24h
+- volume        : row count 7000-8000
+- business_logic: buying_rate < selling_rate + 100, rates within 3000-5000
+
+Finding during Day 9:
+- Original business-logic rule (buying_rate > selling_rate) FAILED with 16 rows
+- Investigation: all 16 had buying > selling by 1-91 KHR, spread across
+  2004-2014, present in the RAW CSV (not a transform bug)
+- Diagnosis: normal pegged-currency noise for KHR on quiet days
+- Fix: loosened rule to buying_rate > selling_rate + 100 (tolerance)
+- Result: all 6 checks PASS
+
+How to run:
+  docker compose exec db psql -U exchange_user -d exchange_db -f /sql/02_quality_checks.sql
+
+  - docker-compose.yml: db service now mounts only 01_create_schema.sql at
+  /docker-entrypoint-initdb.d/, and the whole ./sql folder at /sql (read-only)
+  so quality checks can be run manually without Postgres auto-running them
+  at init time.
+
+  - Postgres auto-runs EVERY .sql file in /docker-entrypoint-initdb.d at first
+  init. To keep extra SQL files out of init, mount them somewhere else
+  (e.g. /sql) and run them with psql -f.
+- A data-quality check that always PASSes teaches nothing. If a check ever
+  fails on real data, investigate before "fixing" the check:
+    1. Is it the source (bad raw data) or the pipeline (transform bug)?
+    2. Is it a real anomaly or expected behavior for this domain?
+    3. Only then decide: fix the data, fix the pipeline, or loosen the rule.
+- UNION ALL (not UNION) when stacking summary rows that are guaranteed unique.
+
+
+## Day 9 — Data-quality checks
+
+- Created sql/02_quality_checks.sql with 6 checks (uniqueness, completeness,
+  validity, freshness, volume, business_logic)
+- Pattern: every check returns exactly one row
+  (check_name | status | failed_rows | details)
+- All 6 joined with UNION ALL, ordered by check_name
+- Adjusted docker-compose.yml so sql/02 isn't auto-run at Postgres init;
+  mounted at /sql instead so it can be run manually with psql -f
+
+Interesting finding:
+- business_logic originally flagged 16 rows where buying_rate > selling_rate
+- Investigated: all present in RAW CSV, tiny reversals (1-91 KHR), spread
+  across 2004-2014 — normal pegged-currency noise, not a bug
+- Loosened rule to buying_rate > selling_rate + 100 (documented in comment)
+
+Result: 6/6 checks PASS. Screenshot saved.
+
+Run:
+  docker compose exec db psql -U exchange_user -d exchange_db -f /sql/02_quality_checks.sql
+## Day 10 task (next)
 TBD
 
-- Docker image does NOT see your venv. requirements.txt is the contract.
-- pip pins (==) make builds reproducible; unpinned = surprises later.
-- In Compose, services find each other by service name (db), NOT localhost.
-- environment: overrides env_file:  — useful for hostnames that differ.
-- 'docker compose up' (no -d) stops ALL services on Ctrl+C, not just the
-  one in the foreground. Use 'docker compose up -d' to run detached.
-- If a Dockerfile change doesn't seem to take effect: did you rebuild?
-  docker build ... or docker compose up --build
-- Docker layer caching: put rarely-changing lines first (requirements.txt,
-  pip install) and frequently-changing lines last (COPY source code).
-
-
-  
+  ## Current status: Day 9 complete, Day 10 not started
