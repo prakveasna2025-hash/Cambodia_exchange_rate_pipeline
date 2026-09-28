@@ -19,5 +19,16 @@ services:
       timeout: 5s
       retries: 10
 
+  etl:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file: .env
+    environment:
+      POSTGRES_HOST: db
+    volumes:
+      - ./data/raw:/app/data/raw:ro
+
 volumes:
   pgdata:

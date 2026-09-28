@@ -346,3 +346,51 @@ TBD. Options:
 - GitHub Actions CI (pytest on push)
 - Rejected-rows output (data/processed/rejected.csv)
 - CLI flags (--csv, --dry-run)
+
+## Current status: Day 8 complete, Day 9 not started
+
+## Day 8 (complete) — Dockerize the ETL
+
+New files:
+- Dockerfile       python:3.11-slim, WORKDIR /app, pip install from requirements.txt,
+                   COPY main.py + src/, CMD ["python","main.py"]
+- .dockerignore    excludes venv/, .env, .git/, data/, __pycache__/, docs
+- requirements.txt pinned: pandas==3.0.6, SQLAlchemy==2.1.0,
+                   psycopg2-binary==2.9.13, python-dotenv==1.2.3
+
+Changed:
+- docker-compose.yml: added 'etl' service
+    build: .
+    depends_on: db (condition: service_healthy)
+    env_file: .env
+    environment: POSTGRES_HOST=db          <- key: container-to-container hostname
+    volumes: ./data/raw -> /app/data/raw:ro
+
+Clean-state test passed:
+- docker compose down -v  (wipes pgdata volume)
+- docker compose up --build
+- Postgres initialized, schema ran, etl waited for health, loaded 7531 rows
+  (7531 inserted, 0 updated — first-ever load)
+- SELECT COUNT(*) = 7531
+
+How to run:
+- docker compose up -d --build       # start stack, run etl once
+- docker compose exec db psql -U exchange_user -d exchange_db
+- docker compose down -v             # full reset (loses data)
+
+## Day 9 task (next)
+TBD
+
+- Docker image does NOT see your venv. requirements.txt is the contract.
+- pip pins (==) make builds reproducible; unpinned = surprises later.
+- In Compose, services find each other by service name (db), NOT localhost.
+- environment: overrides env_file:  — useful for hostnames that differ.
+- 'docker compose up' (no -d) stops ALL services on Ctrl+C, not just the
+  one in the foreground. Use 'docker compose up -d' to run detached.
+- If a Dockerfile change doesn't seem to take effect: did you rebuild?
+  docker build ... or docker compose up --build
+- Docker layer caching: put rarely-changing lines first (requirements.txt,
+  pip install) and frequently-changing lines last (COPY source code).
+
+
+  

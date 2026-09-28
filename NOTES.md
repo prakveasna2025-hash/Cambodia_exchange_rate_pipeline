@@ -137,4 +137,29 @@ def function_name(args): — define a function
 
 Conclusion: pipeline is idempotent. The staging-table UPSERT works —
 running the same CSV any number of times does not create duplicates.
+
+## Day 8 — Dockerize the ETL
+
+- Created Dockerfile (python:3.11-slim base, WORKDIR /app, pip install,
+  COPY code, CMD python main.py)
+- Created .dockerignore (venv, .env, .git, data/, docs)
+- Created requirements.txt with pinned versions (direct deps only)
+- Extended docker-compose.yml with 'etl' service
+  - depends_on db with condition: service_healthy
+  - POSTGRES_HOST=db  (overrides .env inside the network)
+  - ./data/raw mounted read-only into /app/data/raw
+
+Clean-state test:
+- docker compose down -v  ->  wiped container, network, pgdata volume
+- docker compose up --build  ->  full rebuild + rerun
+- Postgres init ran sql/01_create_schema.sql automatically
+- etl waited for db healthy, then loaded 7531 rows (7531 ins, 0 upd)
+- COUNT(*) = 7531 confirmed after
+
+Run commands:
+  docker compose up -d --build
+  docker compose exec db psql -U exchange_user -d exchange_db
+  docker compose down -v
+
+
 =====================================
