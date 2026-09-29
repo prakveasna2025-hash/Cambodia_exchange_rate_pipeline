@@ -439,6 +439,10 @@ How to run:
 Note: query 4 returns 7531 rows; use -P pager=off and expect scrolling.
 
 ## Day 11 task (next)
-TBD
-
-  ## Current status: Day 9 complete, Day 10 not started
+## Day 11 (complete) — README + architecture diagram
+- Rewrote README.md using a 10-section outline (title, overview,
+  architecture, tech stack, structure, data source, how to run, quality
+  checks, testing, future work)
+- Created docs/diagrams/pipeline.drawio (source, editable in draw.io)
+- PENDING: export pipeline.svg to docs/diagrams/ — README image reference
+  is currently a broken link until this is added
