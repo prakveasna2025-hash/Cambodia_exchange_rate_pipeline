@@ -182,4 +182,20 @@ Result: 6/6 checks PASS. Screenshot saved.
 
 Run:
   docker compose exec db psql -U exchange_user -d exchange_db -f /sql/02_quality_checks.sql
+
+  ## Day 10 — Analysis queries
+
+- Created sql/03_analysis_queries.sql with 4 queries:
+    latest rate (DISTINCT ON), monthly average (DATE_TRUNC + GROUP BY),
+    highest/lowest (UNION ALL with parenthesized ORDER BY ... LIMIT),
+    day-over-day (window function LAG OVER ORDER BY)
+- KHR/USD extremes: ~3950 (Apr 2003) low, ~4286 (Jul 2010) high —
+  consistent with the 3000-5000 band from Day 9 quality checks
+- Also fixed .dockerignore (was empty → build context 586B after fix)
+
+Run:
+  docker compose exec db psql -U exchange_user -d exchange_db \
+      -P pager=off -f /sql/03_analysis_queries.sql
+
+      
 =====================================

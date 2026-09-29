@@ -329,7 +329,7 @@ TBD by user. Options:
 - Add CLI flags (--csv path, --dry-run)
 - Handle rejected rows in a dead-letter output (data/processed/rejected.csv)
 
-## Current status: Day 7 complete, Day 8 not started
+## Current status: Day 7 complete
 
 ## Day 7 (complete) — Repeat-run test
 - Ran main.py twice back to back
@@ -340,14 +340,6 @@ TBD by user. Options:
 - Duplicate check: SELECT ... GROUP BY rate_date, currency_code HAVING COUNT(*) > 1 -> (0 rows)
 - Conclusion: pipeline is idempotent
 
-## Day 8 task (next)
-TBD. Options:
-- Integration test for load() against a throwaway table
-- GitHub Actions CI (pytest on push)
-- Rejected-rows output (data/processed/rejected.csv)
-- CLI flags (--csv, --dry-run)
-
-## Current status: Day 8 complete, Day 9 not started
 
 ## Day 8 (complete) — Dockerize the ETL
 
@@ -415,28 +407,38 @@ How to run:
     3. Only then decide: fix the data, fix the pipeline, or loosen the rule.
 - UNION ALL (not UNION) when stacking summary rows that are guaranteed unique.
 
-
-## Day 9 — Data-quality checks
-
-- Created sql/02_quality_checks.sql with 6 checks (uniqueness, completeness,
-  validity, freshness, volume, business_logic)
-- Pattern: every check returns exactly one row
-  (check_name | status | failed_rows | details)
-- All 6 joined with UNION ALL, ordered by check_name
-- Adjusted docker-compose.yml so sql/02 isn't auto-run at Postgres init;
-  mounted at /sql instead so it can be run manually with psql -f
-
-Interesting finding:
-- business_logic originally flagged 16 rows where buying_rate > selling_rate
-- Investigated: all present in RAW CSV, tiny reversals (1-91 KHR), spread
-  across 2004-2014 — normal pegged-currency noise, not a bug
-- Loosened rule to buying_rate > selling_rate + 100 (documented in comment)
-
-Result: 6/6 checks PASS. Screenshot saved.
-
-Run:
-  docker compose exec db psql -U exchange_user -d exchange_db -f /sql/02_quality_checks.sql
 ## Day 10 task (next)
+## Day 10 (complete) — Analysis queries
+
+New file: sql/03_analysis_queries.sql
+- Four queries:
+    1. Latest rate per currency       (DISTINCT ON)
+    2. Monthly average by currency    (DATE_TRUNC + GROUP BY)
+    3. Highest/lowest in range        (UNION ALL with parenthesized branches)
+    4. Day-over-day change            (window function: LAG OVER ORDER BY)
+
+Findings:
+- KHR/USD has ranged roughly 3950-4286 over 2003-2023
+  (min 2003-04-01, max 2010-07-01 for buying, 2005-07-29 for selling)
+- These extremes align with the 3000-5000 band used in Day 9's quality check
+- December 2023 avg: buying 4100.94 / selling 4110.74, 31 days
+
+Gotcha found:
+- In a UNION ALL, each branch with its own ORDER BY ... LIMIT must be
+  wrapped in parentheses. Otherwise Postgres binds the ORDER BY to the
+  whole union and errors with "syntax error at or near UNION".
+
+Also fixed on this day:
+- .dockerignore was empty (0 bytes). Populated it so the build context
+  drops from tens of MB to 586 bytes.
+
+How to run:
+  docker compose exec db psql -U exchange_user -d exchange_db \
+      -P pager=off -f /sql/03_analysis_queries.sql
+
+Note: query 4 returns 7531 rows; use -P pager=off and expect scrolling.
+
+## Day 11 task (next)
 TBD
 
   ## Current status: Day 9 complete, Day 10 not started

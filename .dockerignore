@@ -1,0 +1,20 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Secrets
+.env
+
+# Git
+.git/
+.gitignore
+
+# Data (raw is mounted at runtime, processed is regenerated)
+data/
+
+# Docs (not needed inside the container)
+NOTES.md
+HANDOFF.md
+README.md
