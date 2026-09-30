@@ -11,6 +11,18 @@ exchange rate data from a raw CSV into a PostgreSQL data warehouse.
 Following a learning plan structured as daily tasks (Day 1, Day 2, ...).
 
 
+## Commit conventions
+
+- Day-based commits use the format: `Day N: <summary>`
+- One commit per day, tagged `day-N-done`, pushed to origin
+- Small fixups after a day's main commit stay separate with a descriptive
+  message — the history is intentionally honest, not squashed
+- Early README commits (42cb222, d005bce) were made via GitHub web UI
+  before local git was set up; they're kept as-is
+- History is not rewritten. Force-pushes are avoided except to fix a
+  mis-placed tag.
+
+
 
 \## Current status: Day 4 complete, Day 5 not started
 
