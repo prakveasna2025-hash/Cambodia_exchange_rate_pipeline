@@ -170,7 +170,7 @@ Copy `.env.example` to `.env` and set:
 
 ```
 POSTGRES_USER=exchange_user
-POSTGRES_PASSWORD=exchange_password
+POSTGRES_PASSWORD=change_me
 POSTGRES_DB=exchange_db
 POSTGRES_HOST=localhost
 POSTGRES_PORT=5432
