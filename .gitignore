@@ -74,3 +74,5 @@ desktop.ini
 ~$*.xlsx
 ~$*.docx
 
+# draw.io temp files
+*.dtmp

@@ -23,6 +23,17 @@ The whole pipeline runs either locally (Python venv) or fully containerized
 (Docker Compose), and includes SQL-level data-quality checks and analytical
 queries.
 
+
+## Prerequisites
+
+- **Docker Desktop** (for the Docker path) — https://www.docker.com/products/docker-desktop
+- **Python 3.11** (for the local path)
+- A copy of `.env` created from `.env.example` (both paths need it):
+
+  ```bash
+  cp .env.example .env
+
+
 ## Architecture
 
 ![Pipeline architecture](docs/diagrams/pipeline.svg)
