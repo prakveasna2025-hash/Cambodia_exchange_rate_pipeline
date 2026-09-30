@@ -1,7 +1,6 @@
 services:
   db:
     image: postgres:18
-    container_name: cambodia_fx_db
     restart: unless-stopped
     env_file: .env
     environment:
