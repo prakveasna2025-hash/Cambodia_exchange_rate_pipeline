@@ -446,3 +446,29 @@ Note: query 4 returns 7531 rows; use -P pager=off and expect scrolling.
 - Created docs/diagrams/pipeline.drawio (source, editable in draw.io)
 - PENDING: export pipeline.svg to docs/diagrams/ — README image reference
   is currently a broken link until this is added
+
+  ## Current status: Day 12 complete, Day 13 not started
+  ## Day 12 (complete) — Fresh-clone verification
+
+Method: cloned the repo into a separate folder on Desktop, followed README
+top-to-bottom without shortcuts, recorded every gap.
+
+Gaps found and fixed:
+1. README Option A fails on a fresh clone because .env doesn't exist
+   → Added a Prerequisites section (copy .env.example → .env), commit 22374f8
+2. docker-compose.yml hardcoded container_name: cambodia_fx_db,
+   preventing two clones from running side-by-side
+   → Removed container_name, let Compose auto-name, commit c1b724f
+3. .env.example was missing POSTGRES_HOST and mismatched password
+   (change_me vs exchange_password in README)
+   → Added POSTGRES_HOST=localhost, aligned README to change_me, commit 5cfa479
+
+Result: fresh clone runs `docker compose up --build` cleanly with no manual
+edits beyond copying .env.example to .env. Run summary: 7531 loaded, 0 updated.
+
+Also found during the process:
+- draw.io auto-save temp file (.$pipeline.drawio.dtmp) was accidentally staged
+  → removed and added *.dtmp to .gitignore
+
+## Day 13 task (next)
+TBD

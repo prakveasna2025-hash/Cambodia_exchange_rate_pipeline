@@ -197,5 +197,8 @@ Run:
   docker compose exec db psql -U exchange_user -d exchange_db \
       -P pager=off -f /sql/03_analysis_queries.sql
 
-      
+git add -A
+git commit -m "Day 12: fresh-clone verification and README fixes"
+git tag day-12-done
+git push origin main --tags
 =====================================
