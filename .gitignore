@@ -1,8 +1,3 @@
-.env
----------------------
--- Day: 3
----------------------
-
 # ---------- Secrets ----------
 .env
 .env.*
@@ -35,8 +30,6 @@ htmlcov/
 .ruff_cache/
 
 # ---------- Data & databases ----------
-# raw CSVs you don't want in git (uncomment if private or huge)
-# data/raw/*.csv
 data/processed/
 *.parquet
 *.db
@@ -51,7 +44,6 @@ logs/
 .ipynb_checkpoints/
 
 # ---------- Docker ----------
-# keep docker-compose.yml, ignore local overrides
 docker-compose.override.yml
 .docker/
 
@@ -68,11 +60,10 @@ desktop.ini
 *~
 *.swp
 
-# ---------- OneDrive temp files ----------
-# OneDrive sometimes drops these into synced folders
+# ---------- OneDrive ----------
 *.tmp
 ~$*.xlsx
 ~$*.docx
 
-# draw.io temp files
+# ---------- draw.io temp files ----------
 *.dtmp
