@@ -3,6 +3,11 @@
 An ETL pipeline that loads National Bank of Cambodia (NBC) USD/KHR
 exchange rates from a raw CSV into a PostgreSQL data warehouse.
 
+[![tests](https://github.com/prakveasna2025-hash/Cambodia_exchange_rate_pipeline/actions/workflows/tests.yml/badge.svg)](https://github.com/prakveasna2025-hash/Cambodia_exchange_rate_pipeline/actions/workflows/tests.yml)
+
+An ETL pipeline that loads National Bank of Cambodia (NBC) USD/KHR
+exchange rates from a raw CSV into a PostgreSQL data warehouse.
+
 ## Overview
 
 This project loads 20+ years of USD/KHR exchange-rate data published by
@@ -272,3 +277,5 @@ Ideas for extending the pipeline, in rough priority order:
 - **Incremental loads** — the UPSERT supports it, but the extract still
   reads the full CSV every time. Real incremental loads would scan a
   date range instead.
+
+  
