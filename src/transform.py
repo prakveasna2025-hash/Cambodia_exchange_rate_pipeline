@@ -24,13 +24,16 @@ def transform(df):
 
     # DROP rule 2: duplicate (rate_date, currency_code)
     before = len(out)
-    out = out.drop_duplicates(subset=["rate_date", "currency_code"], keep="last")
+    out = out.drop_duplicates(
+        subset=["rate_date", "currency_code"], keep="last")
     n_dup = before - len(out)
     if n_dup:
-        log.warning("Dropped %d duplicate (rate_date, currency_code) rows", n_dup)
+        log.warning(
+            "Dropped %d duplicate (rate_date, currency_code) rows", n_dup)
 
     # Sort + reset index so the output is stable and readable
     out = out.sort_values("rate_date").reset_index(drop=True)
 
     log.info("Transform complete: %d rows in, %d rows out", len(df), len(out))
+
     return out
